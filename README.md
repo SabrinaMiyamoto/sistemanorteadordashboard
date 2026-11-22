@@ -45,6 +45,5 @@ Para visualizar este projeto, basta abrir o arquivo **`index.html`** no seu nave
 ## 👤 Desenvolvedora
 
 * **Aluno(a):** Sabrina Miyamoto
-* **Professores:** Herval Daminelli e Underlea Cabreira Corrêa 
 
 

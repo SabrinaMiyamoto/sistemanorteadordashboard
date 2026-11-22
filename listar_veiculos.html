@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style/header.css">
+    <link rel="stylesheet" href="./style/listar_veiculos.css">
+    <link rel="shortcut icon" href="./img/logo.ico" type="image/x-icon">
+    <title>Veículos Cadastrados</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html"><img src="./img/logo.png" alt="Logo LW"></a>
+        </div>
+        <button class="menu-toggle" id="mobile-menu">
+            <span></span><span></span><span></span>
+        </button>
+        <nav id="main-nav">
+            <a href="index.html#servicos">Serviços</a>
+            <a href="index.html#pilares">Pilares</a>
+            <a href="cadastro.html" class="btn-clean">Cadastrar</a>
+            <a href="veiculo.html">Cadastre seu veículo</a>
+            <a href="agendamento.html">Agendar Lavação</a>
+            <a href="listar_veiculos.html">Listar dados de veículos</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Relatório de Veículos Cadastrados</h1>
+        <p>Dados obtidos do servidor via AJAX.</p>
+
+        <!-- O resultado da requisição AJAX é inserido aqui -->
+        <div id="resultado" class="tabela-wrapper">
+            <p class="mensagem">Carregando dados...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Lavação Web. Todos os direitos reservados. | <a href="index.html">Home</a></p>
+    </footer>
+
+    <script src="./js/manipula-ajax.js"></script>
+</body>
+</html>
