@@ -53,7 +53,9 @@ As marcas e os modelos vêm da [API FIPE](https://deividfortuna.github.io/fipe/)
 - junta as marcas da FIPE com as marcas adicionadas pelo modal "Adicionar marca" (tabela `marcas_personalizadas`);
 - se a FIPE estiver fora do ar, devolve as marcas populares, e o modelo pode ser digitado à mão.
 
-Se o banco já existe, crie só a tabela nova com `database/marcas_personalizadas.sql`, sem perder os dados.
+A tabela `marcas_personalizadas` é criada **automaticamente** pelo backend ao iniciar (`backend/src/main/resources/schema.sql`), sem apagar dados. O arquivo `database/marcas_personalizadas.sql` faz a mesma coisa, caso prefira criar à mão.
+
+> 🌐 O backend precisa de **internet** para buscar marcas e modelos na FIPE. Sem internet, aparecem só as marcas populares e o modelo é digitado à mão.
 
 As rotas "com token" exigem o cabeçalho `Authorization: Bearer <token>`, com o token devolvido pelo login.
 Os dados são enviados e recebidos em **JSON**. Em caso de erro a resposta é `{ "status": 400, "message": "..." }`.
@@ -63,7 +65,7 @@ Exemplo de login:
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"usuario":"sabrina","senha":"1234"}'
+  -d '{"usuario":"lucas","senha":"1234"}'
 ```
 
 ---
@@ -93,14 +95,21 @@ O sistema tem **três partes**, que precisam estar ligadas ao mesmo tempo: o **b
 2. Importe o arquivo `database/dump.sql`, que cria o banco `sistema_norteador` com as tabelas e os dados de teste:
    - **phpMyAdmin:** aba *Importar* → escolha `database/dump.sql` → *Executar*.
    - **MySQL Workbench:** *Server* → *Data Import* → *Import from Self-Contained File*.
-   - **Terminal** (na pasta raiz do projeto):
+   - **Script pronto (Windows):** acha o `mysql.exe` sozinho, pede a senha e importa com os acentos certos:
+
+     ```powershell
+     powershell -ExecutionPolicy Bypass -File database\recriar-banco.ps1
+     ```
+   - **Terminal** (na pasta raiz do projeto). Tire o `-p` se o root não tiver senha (padrão do XAMPP):
 
      ```bash
-     # root sem senha (padrão do XAMPP)
-     mysql -u root < database/dump.sql
+     # Git Bash, Linux, macOS ou Prompt de Comando (cmd)
+     mysql -u root -p --default-character-set=utf8mb4 < database/dump.sql
+     ```
 
-     # root com senha (o MySQL vai pedir a senha)
-     mysql -u root -p < database/dump.sql
+     ```powershell
+     # PowerShell (ele não aceita o "<", por isso o cmd /c)
+     cmd /c "mysql -u root -p --default-character-set=utf8mb4 < database\dump.sql"
      ```
 
 > ⚠️ O dump **apaga e recria** as tabelas do banco `sistema_norteador`. Outros bancos não são alterados.
@@ -127,7 +136,18 @@ export DB_PASS=senha_do_mysql       # só se o root tiver senha
 mvn spring-boot:run
 ```
 
+**Sem Maven instalado, usando o Maven que vem com o IntelliJ** (PowerShell). Ajuste os caminhos para a versão instalada no seu computador:
+
+```powershell
+cd backend
+$env:JAVA_HOME = "C:\Users\SEU_USUARIO\.jdks\openjdk-25"   # pasta do JDK (a que contém bin\java.exe)
+$env:DB_PASS = "senha_do_mysql"                            # só se o root tiver senha
+& "C:\Program Files\JetBrains\IntelliJ IDEA 2025.2.1\plugins\maven\lib\maven3\bin\mvn.cmd" spring-boot:run
+```
+
 **IntelliJ IDEA:** abra a pasta `backend/`, espere o Maven baixar as dependências e rode a classe `NorteadorApplication` (botão ▶). Para informar a senha do banco: *Run* → *Edit Configurations* → *Environment variables* → `DB_PASS=senha_do_mysql`.
+
+> As variáveis `$env:` valem só para aquele terminal: ao abrir um terminal novo, defina de novo.
 
 O backend está pronto quando aparecer no terminal:
 
@@ -135,7 +155,13 @@ O backend está pronto quando aparecer no terminal:
 Started NorteadorApplication in ... seconds
 ```
 
-> Também dá para mudar usuário e senha direto em `backend/src/main/resources/application.properties`.
+Para testar se a API está no ar, abra outro terminal e faça o login de teste (deve voltar um `token`):
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/login -ContentType "application/json" -Body '{"usuario":"lucas","senha":"1234"}'
+```
+
+> Também dá para mudar usuário e senha direto em `backend/src/main/resources/application.properties`, mas **não faça commit da sua senha**: prefira a variável `DB_PASS`.
 
 ---
 
@@ -145,9 +171,11 @@ Abra **outro terminal** (o do backend precisa continuar aberto):
 
 ```bash
 cd frontend
-npm install      # só na primeira vez
-npm run dev
+npm install      # só na primeira vez (e sempre que o package.json mudar)
+npm run dev      # ou: npm start
 ```
+
+O frontend está pronto quando aparecer `Local: http://localhost:5173/`.
 
 ---
 
@@ -157,10 +185,10 @@ Abra **http://localhost:5173** no navegador e entre com um dos usuários de test
 
 | Usuário     | Senha      |
 |-------------|------------|
-| `sabrina`   | `1234`     |
+| `lucas`     | `1234`     |
 | `joaosilva` | `senha456` |
 
-> 🎓 **Login para a correção do professor:** usuário `sabrina` e senha `1234`.
+> 🎓 **Login para a correção do professor:** usuário `lucas` e senha `1234`.
 
 Também é possível criar uma conta nova pela página **Cadastro**.
 
@@ -185,28 +213,41 @@ Em desenvolvimento, o Vite encaminha as chamadas para `/api` ao backend em `http
 | `Port 5173 is already in use` | Outro projeto Vite está aberto | Feche o outro projeto, ou use outra porta: `npm run dev -- --port 5180` |
 | Login dá `403` / `Invalid CORS request` | O site foi aberto por um endereço que não é `localhost` nem `127.0.0.1` | Abra pelo `http://localhost:PORTA`, ou libere o endereço com `APP_CORS_ORIGIN=http://endereco:porta` ao subir o backend |
 | "Usuário ou senha inválidos" | Senha errada (ex.: usar a senha do MySQL) | Use os usuários de teste da tabela do passo 4 |
-| `Plugin caching_sha2_password could not be loaded` ao importar | O cliente `mysql` do XAMPP é antigo para um MySQL 8+ | Use o `mysql.exe` do próprio MySQL Server, o Workbench ou o phpMyAdmin |
+| `Plugin caching_sha2_password could not be loaded` ao importar | O cliente `mysql` do XAMPP é antigo para um MySQL 8+ | Use o `mysql.exe` do próprio MySQL Server (o script `recriar-banco.ps1` já faz isso), o Workbench ou o phpMyAdmin |
+| Login no site dá **Erro HTTP 502** | O backend não está rodando (o Vite não tem para onde mandar a chamada) | Suba o backend (passo 2) e espere o `Started NorteadorApplication` |
+| `npm error Missing script: "start"` | `package.json` antigo | Use `npm run dev` |
+| Lista de **marcas vazia** | Backend sem internet (a FIPE não respondeu) ou backend desatualizado | Confira a internet e reinicie o backend |
+| Acentos quebrados (ex.: `├ôleo`) | O dump foi importado com a codificação errada | Importe de novo pelo `recriar-banco.ps1`, phpMyAdmin ou com `--default-character-set=utf8mb4` |
 
 ---
 
 ## 📁 Estrutura
 
 ```
+database/
+├── dump.sql                    # Cria o banco com tabelas e dados de teste (apaga os dados atuais)
+├── marcas_personalizadas.sql   # Cria só a tabela de marcas adicionadas
+└── recriar-banco.ps1           # Script do Windows que importa o dump.sql
+
 backend/src/main/java/br/edu/ifsc/norteador/
 ├── config/       # AuthInterceptor (protege as rotas), CORS, tratamento de erros
-├── controller/   # Rotas REST: Auth, Cliente, Automovel, Agendamento
+├── controller/   # Rotas REST: Auth, Cliente, Automovel, Agendamento, Marca
 ├── dto/          # Objetos de entrada/saída da API
-├── model/        # Entidades JPA (tabelas clientes, automoveis, agendamentos)
+├── model/        # Entidades JPA (clientes, automoveis, agendamentos, marcas_personalizadas)
 ├── repository/   # Acesso ao banco (Spring Data JPA)
-└── service/      # Regras de negócio, login e tokens
+└── service/      # Regras de negócio, login, tokens e FipeService (API da Tabela FIPE)
+
+backend/src/main/resources/
+├── application.properties      # Porta, banco, CORS e URL da FIPE
+└── schema.sql                  # Cria tabelas que faltarem ao iniciar
 
 frontend/src/
 ├── auth/         # Contexto de login e rota protegida
-├── components/   # Layouts (público e dashboard), diálogos
+├── components/   # Layouts, modais (veículo, marca) e campos de marca/modelo
 ├── hooks/        # useCarregar (busca de dados)
 ├── pages/        # Home, Login, Cadastro e páginas do dashboard
 ├── api.ts        # Chamadas à API Java
-├── servicos.ts   # Catálogo de serviços e utilitários
+├── servicos.ts   # Catálogo de serviços de lavação e utilitários
 ├── theme.ts      # Tema Material UI (cores neon do projeto original)
 └── types.ts      # Tipos TypeScript dos dados
 ```
