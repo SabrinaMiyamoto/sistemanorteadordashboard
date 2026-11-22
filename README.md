@@ -63,7 +63,7 @@ Exemplo de login:
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"usuario":"sabrina","senha":"senha123"}'
+  -d '{"usuario":"sabrina","senha":"1234"}'
 ```
 
 ---
@@ -157,8 +157,10 @@ Abra **http://localhost:5173** no navegador e entre com um dos usuários de test
 
 | Usuário     | Senha      |
 |-------------|------------|
-| `sabrina`   | `senha123` |
+| `sabrina`   | `1234`     |
 | `joaosilva` | `senha456` |
+
+> 🎓 **Login para a correção do professor:** usuário `sabrina` e senha `1234`.
 
 Também é possível criar uma conta nova pela página **Cadastro**.
 

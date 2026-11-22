@@ -60,7 +60,7 @@ CREATE TABLE `agendamentos` (
 
 
 INSERT INTO `clientes` (`id`, `nome`, `endereco`, `celular`, `email`, `usuario`, `senha`) VALUES 
-(1, 'Sabrina Miyamoto', 'Rua do IFSC, 123', '(48) 99999-1111', 'sabrina@teste.com', 'sabrina', 'senha123'),
+(1, 'Sabrina Miyamoto', 'Rua do IFSC, 123', '(48) 99999-1111', 'sabrina@teste.com', 'sabrina', '1234'),
 (2, 'João Silva', 'Av Central, 456', '(48) 98888-2222', 'joao@teste.com', 'joaosilva', 'senha456');
 
 INSERT INTO `automoveis` (`id`, `marca`, `modelo`, `placa`, `cliente_id`) VALUES
