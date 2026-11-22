@@ -1,3 +1,6 @@
+-- Garante que os acentos sejam lidos como UTF-8 (evita "├ôleo" ao importar pelo terminal do Windows)
+SET NAMES utf8mb4;
+
 -- DESATIVA a verificação de chaves estrangeiras temporariamente
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -9,6 +12,15 @@ USE `sistema_norteador`;
 DROP TABLE IF EXISTS `agendamentos`;
 DROP TABLE IF EXISTS `automoveis`;
 DROP TABLE IF EXISTS `clientes`;
+DROP TABLE IF EXISTS `marcas_personalizadas`;
+
+
+-- Marcas que não existem na Tabela FIPE, adicionadas pelo modal "Adicionar marca"
+CREATE TABLE `marcas_personalizadas` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(50) NOT NULL UNIQUE,
+  `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `clientes` (
@@ -52,14 +64,17 @@ INSERT INTO `clientes` (`id`, `nome`, `endereco`, `celular`, `email`, `usuario`,
 (2, 'João Silva', 'Av Central, 456', '(48) 98888-2222', 'joao@teste.com', 'joaosilva', 'senha456');
 
 INSERT INTO `automoveis` (`id`, `marca`, `modelo`, `placa`, `cliente_id`) VALUES
-(1, 'Chevrolet', 'Onix', 'IFSC2026', 1),
+(1, 'Chevrolet', 'Onix', 'IFS2C26', 1),
 (2, 'Fiat', 'Uno', 'BRA2E19', 1),
 (3, 'Volkswagen', 'Gol', 'ABC1234', 2);
 
 INSERT INTO `agendamentos` (`servico`, `data_agendada`, `horario`, `marca`, `modelo`, `placa`, `observacoes`) VALUES
-('Troca de Óleo', '2026-07-15', '14:30:00', 'Chevrolet', 'Onix', 'IFSC2026', 'Usar óleo sintético recomendado pelo manual.'),
-('Alinhamento e Balanceamento', '2026-07-16', '09:00:00', 'Fiat', 'Uno', 'BRA2E19', 'Revisar barulho na suspensão dianteira.'),
-('Revisão Geral', '2026-07-17', '10:00:00', 'Volkswagen', 'Gol', 'ABC1234', 'Cliente relatou problemas na partida a frio.');
+('Lavação Completa', '2026-11-10', '09:00:00', 'Chevrolet', 'Onix', 'IFS2C26', 'Aspirar bem o porta-malas.'),
+('Higienização de Motor', '2026-11-18', '14:00:00', 'Volkswagen', 'Gol', 'ABC1234', 'Proteger a parte elétrica, motor com bastante poeira.'),
+('Polimento e Enceramento', '2026-12-02', '10:00:00', 'Fiat', 'Uno', 'BRA2E19', 'Riscos leves na porta do motorista.'),
+('Limpeza Detalhada Interna', '2026-12-05', '15:00:00', 'Chevrolet', 'Onix', 'IFS2C26', 'Mancha de café no banco do passageiro.'),
+('Vidrificação', '2026-12-10', '08:00:00', 'Volkswagen', 'Gol', 'ABC1234', NULL),
+('Lavagem a Seco', '2026-12-12', '11:00:00', 'Fiat', 'Uno', 'BRA2E19', 'Cliente prefere serviço sem uso de água.');
 
 -- REATIVE a verificação de chaves estrangeiras por segurança
 SET FOREIGN_KEY_CHECKS = 1;
